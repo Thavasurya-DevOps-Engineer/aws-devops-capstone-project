@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  Security Group infrastructure for the DevOps Capstone Project.
+  This template creates:
+  - EC2 Security Group
+  - RDS Security Group
+  The EC2 Security Group allows access for SSH, HTTP, HTTPS,
+  Spring Boot, Dockerized Spring Boot, Jenkins, Prometheus,
+  Grafana, and Node Exporter.
+  The RDS Security Group allows MySQL access only from the EC2 Security Group.
+
+Resources:
+
+  # ---------------------------------------------------
+  # EC2 Security Group
+  # ---------------------------------------------------
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+
+    Properties:
+      GroupDescription: Security Group for EC2 instance
+
+      VpcId: !ImportValue DevOpsCapstone-VpcId
+
+      SecurityGroupIngress:
+
+        # SSH
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+        # HTTP
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+        # HTTPS
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+        # Spring Boot Application
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+
+        # Dockerized Spring Boot Application
+        - IpProtocol: tcp
+          FromPort: 8081
+          ToPort: 8081
+          CidrIp: 0.0.0.0/0
+
+        # Jenkins
+        - IpProtocol: tcp
+          FromPort: 8082
+          ToPort: 8082
+          CidrIp: 0.0.0.0/0
+
+        # Grafana
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+
+        # Prometheus
+        - IpProtocol: tcp
+          FromPort: 9090
+          ToPort: 9090
+          CidrIp: 0.0.0.0/0
+
+        # Node Exporter
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+      Tags:
+        - Key: Name
+          Value: DevOps-EC2-SecurityGroup
+        - Key: Project
+          Value: DevOps-Capstone
+        - Key: Environment
+          Value: Lab
+
+  # ---------------------------------------------------
+  # RDS Security Group
+  # ---------------------------------------------------
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+
+    Properties:
+      GroupDescription: Security Group for Amazon RDS
+
+      VpcId: !ImportValue DevOpsCapstone-VpcId
+
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref EC2SecurityGroup
+
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+      Tags:
+        - Key: Name
+          Value: DevOps-RDS-SecurityGroup
+        - Key: Project
+          Value: DevOps-Capstone
+        - Key: Environment
+          Value: Lab
+
+Outputs:
+
+  EC2SecurityGroupId:
+    Description: EC2 Security Group ID
+    Value: !Ref EC2SecurityGroup
+    Export:
+      Name: DevOpsCapstone-EC2SecurityGroupId
+
+  RDSSecurityGroupId:
+    Description: RDS Security Group ID
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: DevOpsCapstone-RDSSecurityGroupId
