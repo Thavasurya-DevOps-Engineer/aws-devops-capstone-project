@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  EC2 infrastructure for the DevOps Capstone Project.
+  This template creates:
+  - IAM Role
+  - Instance Profile
+  - Ubuntu Server 24.04 LTS EC2 Instance
+
+Resources:
+
+  # ---------------------------------------------------
+  # IAM Role
+  # ---------------------------------------------------
+  EC2InstanceRole:
+    Type: AWS::IAM::Role
+
+    Properties:
+      RoleName: DevOpsCapstone-EC2-Role
+
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+
+      Tags:
+        - Key: Name
+          Value: DevOpsCapstone-EC2-Role
+
+        - Key: Project
+          Value: DevOps-Capstone
+
+        - Key: Environment
+          Value: Lab
+
+  # ---------------------------------------------------
+  # Instance Profile
+  # ---------------------------------------------------
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+
+    Properties:
+      InstanceProfileName: DevOpsCapstone-InstanceProfile
+
+      Roles:
+        - !Ref EC2InstanceRole
+
+  # ---------------------------------------------------
+  # EC2 Instance
+  # ---------------------------------------------------
+  DevOpsEC2Instance:
+    Type: AWS::EC2::Instance
+
+    Properties:
+
+      InstanceType: t3.micro
+
+      ImageId: !Sub "{{resolve:ssm:/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id}}"
+
+      KeyName: devops-capstone-key
+
+      IamInstanceProfile: !Ref EC2InstanceProfile
+
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !ImportValue DevOpsCapstone-PublicSubnetId
+          GroupSet:
+            - !ImportValue DevOpsCapstone-EC2SecurityGroupId
+
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 20
+            VolumeType: gp3
+            DeleteOnTermination: true
+
+      Tags:
+        - Key: Name
+          Value: DevOps-Capstone-EC2
+
+        - Key: Project
+          Value: DevOps-Capstone
+
+        - Key: Environment
+          Value: Lab
+
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+
+          export DEBIAN_FRONTEND=noninteractive
+
+          apt-get update -y
+
+          apt-get install -y \
+            git \
+            curl \
+            wget \
+            unzip \
+            zip \
+            software-properties-common \
+            ca-certificates
+
+Outputs:
+
+  InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref DevOpsEC2Instance
+
+    Export:
+      Name: DevOpsCapstone-InstanceId
+
+  PublicIP:
+    Description: Public IP Address
+    Value: !GetAtt DevOpsEC2Instance.PublicIp
+
+    Export:
+      Name: DevOpsCapstone-PublicIP
+
+  PublicDNS:
+    Description: Public DNS Name
+    Value: !GetAtt DevOpsEC2Instance.PublicDnsName
+
+    Export:
+      Name: DevOpsCapstone-PublicDNS

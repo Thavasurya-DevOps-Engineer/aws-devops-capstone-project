@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  DevOps Capstone - Amazon RDS MySQL
+
+Parameters:
+
+  DBName:
+    Type: String
+    Default: devopsdb
+    Description: Database name
+
+  DBUsername:
+    Type: String
+    Default: admin
+    Description: Master username
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    Description: Master password
+
+Resources:
+
+  #################################################
+  # DB Subnet Group
+  #################################################
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: DevOps Capstone DB Subnet Group
+
+      SubnetIds:
+        - !ImportValue DevOpsCapstone-PrivateSubnet1Id
+        - !ImportValue DevOpsCapstone-PrivateSubnet2Id
+
+      Tags:
+        - Key: Name
+          Value: DevOps-Capstone-DBSubnetGroup
+
+  #################################################
+  # Amazon RDS MySQL Instance
+  #################################################
+
+  MyDatabase:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+
+    Properties:
+
+      DBInstanceIdentifier: devops-capstone-db
+
+      Engine: mysql
+
+      DBInstanceClass: db.t3.micro
+
+      AllocatedStorage: 20
+
+      StorageType: gp3
+
+      StorageEncrypted: true
+
+      DBName: !Ref DBName
+
+      MasterUsername: !Ref DBUsername
+
+      MasterUserPassword: !Ref DBPassword
+
+      DBSubnetGroupName: !Ref DBSubnetGroup
+
+      VPCSecurityGroups:
+        - !ImportValue DevOpsCapstone-RDSSecurityGroupId
+
+      PubliclyAccessible: false
+
+      MultiAZ: false
+
+      BackupRetentionPeriod: 1
+
+      AutoMinorVersionUpgrade: true
+
+      CopyTagsToSnapshot: true
+
+      DeletionProtection: false
+
+      Tags:
+        - Key: Name
+          Value: DevOps-Capstone-RDS
+
+        - Key: Project
+          Value: DevOps-Capstone
+
+        - Key: Environment
+          Value: Lab
+
+Outputs:
+
+  DatabaseEndpoint:
+    Description: Database Endpoint
+    Value: !GetAtt MyDatabase.Endpoint.Address
+
+  DatabasePort:
+    Description: Database Port
+    Value: !GetAtt MyDatabase.Endpoint.Port
+
+  DatabaseName:
+    Description: Database Name
+    Value: !Ref DBName
+
+  DatabaseIdentifier:
+    Description: Database Identifier
+    Value: !Ref MyDatabase
+
+  DBSubnetGroupName:
+    Description: DB Subnet Group Name
+    Value: !Ref DBSubnetGroup
