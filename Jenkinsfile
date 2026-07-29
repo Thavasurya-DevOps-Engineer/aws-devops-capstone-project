@@ -38,11 +38,5 @@ pipeline {
         }
 
         failure {
-            echo 'Build failed!'
-        }
+            echo 'Build fai}
 
-        always {
-            cleanWs()
-        }
-    }
-}
