@@ -6,6 +6,11 @@ pipeline {
         maven 'Maven3'
     }
 
+    environment {
+        IMAGE_NAME = "devops-capstone-app"
+        IMAGE_TAG  = "v1"
+    }
+
     stages {
 
         stage('Checkout Source') {
@@ -30,13 +35,27 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                dir('app') {
+                    sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                }
+            }
+        }
+
     }
 
     post {
         success {
-            echo 'Build completed successfully!'
+            echo 'Docker image built successfully!'
         }
 
         failure {
-            echo 'Build fai}
+            echo 'Pipeline failed!'
+        }
 
+        always {
+            cleanWs()
+        }
+    }
+}
