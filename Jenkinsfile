@@ -9,6 +9,8 @@ pipeline {
     environment {
         IMAGE_NAME = "thavasurya/devops-capstone-app"
         IMAGE_TAG  = "v1"
+        CONTAINER_NAME = "devops-app"
+        APP_PORT = "8081"
     }
 
     stages {
@@ -38,7 +40,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('app') {
-                    sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                    sh '''
+                        docker build \
+                          -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    '''
                 }
             }
         }
@@ -53,22 +58,64 @@ pipeline {
 
                     sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
                         docker push ${IMAGE_NAME}:${IMAGE_TAG}
+
                         docker logout
                     '''
                 }
             }
         }
 
+        stage('Deploy Application') {
+            steps {
+                sh '''
+                    echo "Stopping old container (if running)..."
+
+                    docker rm -f ${CONTAINER_NAME} || true
+
+                    echo "Pulling latest image..."
+
+                    docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+
+                    echo "Starting new container..."
+
+                    docker run -d \
+                        --name ${CONTAINER_NAME} \
+                        -p ${APP_PORT}:8080 \
+                        --restart unless-stopped \
+                        ${IMAGE_NAME}:${IMAGE_TAG}
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                    echo "Waiting for application to start..."
+
+                    sleep 20
+
+                    curl -f http://localhost:${APP_PORT}/actuator/health
+                '''
+            }
+        }
     }
 
     post {
+
         success {
-            echo 'Pipeline completed successfully!'
+            echo '==========================================='
+            echo 'CI/CD Pipeline completed successfully!'
+            echo 'Application deployed successfully.'
+            echo '==========================================='
         }
 
         failure {
+            echo '==========================================='
             echo 'Pipeline failed!'
+            echo 'Check the Console Output for details.'
+            echo '==========================================='
         }
 
         always {
