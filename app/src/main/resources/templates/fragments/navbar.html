@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-secondary px-4"
+     th:fragment="navbar">
+
+    <div class="container-fluid">
+
+        <span class="navbar-brand fw-bold">
+            <i class="bi bi-cloud-fill text-info"></i>
+            CloudOps Nexus
+        </span>
+
+        <div class="d-flex align-items-center gap-3">
+
+            <button class="btn btn-outline-light position-relative">
+
+                <i class="bi bi-bell"></i>
+
+                <span
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+
+                    3
+
+                </span>
+
+            </button>
+
+            <span class="badge bg-success">
+                System Healthy
+            </span>
+
+            <div class="dropdown">
+
+                <button class="btn btn-dark dropdown-toggle"
+                        data-bs-toggle="dropdown">
+
+                    <i class="bi bi-person-circle"></i>
+
+                    Admin
+
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            Profile
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            Logout
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+</html>

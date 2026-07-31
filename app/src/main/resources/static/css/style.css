@@ -1,0 +1,42 @@
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f7fb;
+}
+
+.custom-navbar{
+    background:#0f172a;
+}
+
+.navbar-brand{
+    font-size:1.3rem;
+    font-weight:bold;
+}
+
+.nav-link{
+    color:white !important;
+}
+
+.nav-link:hover{
+    color:#60a5fa !important;
+}
+/* Hero Section */
+.hero{
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border-radius: 20px;
+    padding: 60px;
+    box-shadow: 0 20px 40px rgba(37,99,235,0.25);
+}
+
+.hero h1{
+    font-weight:700;
+}
+
+.hero p{
+    color:#e2e8f0;
+}
+
+.hero-icon{
+    font-size:9rem;
+    opacity:.15;
+}
