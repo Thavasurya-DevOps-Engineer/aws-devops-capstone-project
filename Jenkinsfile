@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "thavasurya/devops-capstone-app"
-        IMAGE_TAG  = "v1"
+        IMAGE_TAG = "v1"
         CONTAINER_NAME = "devops-app"
         APP_PORT = "8081"
     }
@@ -42,6 +42,7 @@ pipeline {
                 dir('app') {
                     sh '''
                         docker build \
+                          -f Dockerfile \
                           -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     '''
                 }
@@ -70,20 +71,16 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 sh '''
-                    echo "Stopping old container (if running)..."
+                    echo "Stopping old container..."
 
                     docker rm -f ${CONTAINER_NAME} || true
-
-                    echo "Pulling latest image..."
-
-                    docker pull ${IMAGE_NAME}:${IMAGE_TAG}
 
                     echo "Starting new container..."
 
                     docker run -d \
                         --name ${CONTAINER_NAME} \
-                        -p ${APP_PORT}:8080 \
                         --restart unless-stopped \
+                        -p ${APP_PORT}:8081 \
                         ${IMAGE_NAME}:${IMAGE_TAG}
                 '''
             }
