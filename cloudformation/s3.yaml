@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: S3 Bucket for DevOps Capstone Backups
+
+Resources:
+
+  BackupBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: thavasurya-devops-capstone-backups-251213420272
+
+      VersioningConfiguration:
+        Status: Enabled
+
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+Outputs:
+
+  BackupBucketName:
+    Value: !Ref BackupBucket
+
+  BackupBucketArn:
+    Value: !GetAtt BackupBucket.Arn
