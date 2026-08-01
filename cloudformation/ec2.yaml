@@ -33,6 +33,32 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
         - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
 
+      Policies:
+        - PolicyName: DevOpsCapstoneS3BackupPolicy
+
+          PolicyDocument:
+            Version: '2012-10-17'
+
+            Statement:
+
+              - Effect: Allow
+
+                Action:
+                  - s3:ListBucket
+
+                Resource:
+                  - arn:aws:s3:::thavasurya-devops-capstone-backups-251213420272
+
+              - Effect: Allow
+
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+
+                Resource:
+                  - arn:aws:s3:::thavasurya-devops-capstone-backups-251213420272/*
+
       Tags:
         - Key: Name
           Value: DevOpsCapstone-EC2-Role
