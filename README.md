@@ -766,8 +766,8 @@ Before deployment, ensure the following are available:
 1. Clone the repository.
 
 ```bash
-git clone https://github.com/Thavasurya-DevOps-Engineer/devops_capstone_project.git
-cd devops_capstone_project
+git clone https://github.com/Thavasurya-DevOps-Engineer/aws-devops-capstone-project.git
+cd aws-devops-capstone-project
 ```
 
 2. Deploy the AWS infrastructure using the CloudFormation templates.
